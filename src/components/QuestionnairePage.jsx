@@ -220,19 +220,8 @@ const QuestionnairePage = () => {
     <div ref={containerRef} className="min-h-screen bg-void-navy pb-32 font-sans">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-void-navy/80 backdrop-blur-xl border-b border-white/5">
-        <div className="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-             <img src={logo} alt="Terminify Logo" className="h-6 w-auto object-contain" />
-          </div>
-          <div className="flex items-center gap-4">
-             <button 
-               onClick={handleSubmit}
-               disabled={isSubmitting}
-               className="bg-signal-blue hover:bg-highlight-blue px-6 py-2 rounded-xs text-xs font-bold transition-all disabled:opacity-50"
-             >
-               {isSubmitting ? 'Sendet...' : 'Absenden'}
-             </button>
-          </div>
+        <div className="max-w-4xl mx-auto px-6 h-20 flex items-center justify-center">
+          <img src={logo} alt="Terminify Logo" className="h-6 w-auto object-contain" />
         </div>
       </header>
 
