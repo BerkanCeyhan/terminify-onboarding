@@ -171,14 +171,28 @@ const QuestionnairePage = () => {
     setIsSubmitting(true)
     
     try {
+      // Helper function to convert file to base64
+      const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+
+      const base64Files = await Promise.all(uploadedFiles.map(async (file) => {
+        const base64Data = await fileToBase64(file);
+        return {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          data: base64Data // This will be the data URL (e.g., data:image/png;base64,...)
+        };
+      }));
+
       const payload = {
         ...formData,
         submittedAt: new Date().toISOString(),
-        files: uploadedFiles.map(file => ({
-          name: file.name,
-          size: file.size,
-          type: file.type
-        }))
+        files: base64Files
       }
 
       const response = await fetch('https://hook.eu1.make.com/9l7oc03miojln1ehfuq3beuvlf6inxdc', {

@@ -75,13 +75,13 @@ const LandingPage = () => {
           // Trigger confetti at the peak of the sound impact
           setTimeout(() => {
             confetti({
-              particleCount: 200,
-              spread: 120,
+              particleCount: 150,
+              spread: 100,
               origin: { y: 0.6 },
-              colors: ['#4A6CF7', '#5B8AF5', '#FFFFFF', '#000000'],
+              colors: ['#4A6CF7', '#5B8AF5', '#FFFFFF'],
               disableForReducedMotion: true
             });
-          }, 100);
+          }, 200);
         }, "-=1.0")
         .to('.welcome-screen', { 
           opacity: 0, 
@@ -137,7 +137,7 @@ const LandingPage = () => {
 
             <div className="relative flex flex-col items-center text-center">
               <h2 className="welcome-title opacity-0 translate-y-4 text-body-text uppercase tracking-[0.3em] font-medium text-xs md:text-sm mb-12">
-                Wilkommen bei
+                Willkommen bei
               </h2>
               
               <div className="flex items-center gap-6 md:gap-8 h-12 md:h-24 px-12">
@@ -200,7 +200,7 @@ const LandingPage = () => {
               <div className="w-3 h-3 rounded-full bg-[#28C840]" />
             </div>
             <div className="flex-1 bg-void-navy/50 rounded-xs h-6 flex items-center px-3 border border-white/5">
-              <span className="text-[10px] text-muted-text font-mono truncate">terminify.ai/onboarding-video</span>
+              <span className="text-[10px] text-muted-text font-mono truncate">terminify.io/onboarding-strategy-video</span>
             </div>
           </div>
 
@@ -223,6 +223,8 @@ const LandingPage = () => {
         <div className="cta-button">
           <Link
             to="/questionnaire"
+            target="_blank"
+            rel="noopener noreferrer"
             className="group relative inline-flex items-center gap-3 bg-signal-blue hover:bg-highlight-blue text-white px-10 py-5 rounded-xs font-bold text-lg transition-all duration-300 shadow-xl shadow-signal-blue/20 hover:shadow-highlight-blue/30"
           >
             Fragebogen starten
@@ -239,9 +241,9 @@ const LandingPage = () => {
             <span className="text-xs text-muted-text">© 2026 Alle Rechte vorbehalten.</span>
           </div>
           <div className="flex gap-8 text-[10px] uppercase tracking-[0.15em] font-mono text-muted-text">
-            <a href="https://vsl.terminify.ai/impressum/" className="hover:text-highlight-blue transition-colors">Impressum</a>
-            <a href="https://vsl.terminify.ai/datenschutz/" className="hover:text-highlight-blue transition-colors">Datenschutz</a>
-            <a href="https://vsl.terminify.ai/agb/" className="hover:text-highlight-blue transition-colors">AGB</a>
+            <a href="#" className="hover:text-highlight-blue transition-colors">Impressum</a>
+            <a href="#" className="hover:text-highlight-blue transition-colors">Datenschutz</a>
+            <a href="#" className="hover:text-highlight-blue transition-colors">AGB</a>
           </div>
         </div>
       </footer>
