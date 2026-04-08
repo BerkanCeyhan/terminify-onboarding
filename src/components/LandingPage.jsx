@@ -1,27 +1,171 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { ExternalLink, Play } from 'lucide-react'
+import confetti from 'canvas-confetti'
+import { ExternalLink, Play, Volume2, VolumeX, Sparkles } from 'lucide-react'
 import logo from '../../infos/logo.png'
+import logoHead from '../../infos/logo-robot-head-part.png'
+import logoText from '../../infos/logo-text-part-terminify.png'
+import cinematicSound from '../../infos/sound-2.wav'
 
 const LandingPage = () => {
   const containerRef = useRef(null)
+  const [hasStarted, setHasStarted] = useState(false)
+  const [isMuted, setIsMuted] = useState(false)
+  // Using local cinematic sound
+  const audioRef = useRef(new Audio(cinematicSound))
+
+  const startExperience = () => {
+    setHasStarted(true)
+    // Unlock audio context for modern browsers
+    audioRef.current.play().then(() => {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+    }).catch(e => console.log("Audio unlock failed", e))
+  }
 
   useEffect(() => {
+    if (!hasStarted) return
+
+    audioRef.current.volume = 0.6
+
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1 } })
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out', duration: 1.2 } })
       
-      tl.from('.hero-badge', { y: 20, opacity: 0, duration: 0.6 })
-        .from('.hero-headline', { y: 30, opacity: 0 }, '-=0.4')
-        .from('.video-container', { scale: 0.95, opacity: 0, duration: 1.2 }, '-=0.6')
-        .from('.cta-button', { y: 20, opacity: 0, duration: 0.6 }, '-=0.8')
+      // 1. Loading Dots Loop
+      gsap.fromTo('.loading-dot', 
+        { opacity: 0.1, scale: 0.4 },
+        { 
+          opacity: 1, 
+          scale: 1, 
+          duration: 0.8, 
+          stagger: {
+            each: 0.15,
+            repeat: -1,
+            yoyo: true
+          },
+          ease: "sine.inOut"
+        }
+      )
+
+      // 2. Welcome Intro Sequence
+      tl.add(() => {
+          // Play cinematic sound at the very beginning to capture the full buildup
+          if (!isMuted) {
+            audioRef.current.play().catch(e => console.log("Audio play failed", e))
+          }
+        }, 0.1)
+        .to('.welcome-title', { 
+          opacity: 1, 
+          y: 0, 
+          duration: 1.4,
+          ease: "expo.out"
+        })
+        .fromTo('.logo-part-head', 
+          { x: -80, opacity: 0, scale: 0.7, filter: 'blur(10px)' },
+          { x: 0, opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.8, ease: "expo.out" },
+          "-=0.6"
+        )
+        .fromTo('.logo-part-text', 
+          { x: 80, opacity: 0, scale: 0.7, filter: 'blur(10px)' },
+          { x: 0, opacity: 1, scale: 1, filter: 'blur(0px)', duration: 1.8, ease: "expo.out" },
+          "-=1.8"
+        )
+        .add(() => {
+          // Trigger confetti at the peak of the sound impact
+          setTimeout(() => {
+            confetti({
+              particleCount: 200,
+              spread: 120,
+              origin: { y: 0.6 },
+              colors: ['#4A6CF7', '#5B8AF5', '#FFFFFF', '#000000'],
+              disableForReducedMotion: true
+            });
+          }, 100);
+        }, "-=1.0")
+        .to('.welcome-screen', { 
+          opacity: 0, 
+          duration: 1.5, 
+          ease: "power4.inOut",
+          delay: 1.5,
+          onComplete: () => {
+            gsap.set('.welcome-screen', { display: 'none' })
+          }
+        })
+      
+      // 3. Hero Content Fade-in
+      tl.from('.hero-badge', { y: 20, opacity: 0, duration: 0.8 }, '-=0.5')
+        .from('.hero-headline', { y: 30, opacity: 0 }, '-=0.6')
+        .from('.video-container', { scale: 0.98, opacity: 0, duration: 1.5 }, '-=0.8')
+        .from('.cta-button', { y: 20, opacity: 0, duration: 0.8 }, '-=1')
     }, containerRef)
 
-    return () => ctx.revert()
-  }, [])
+    return () => {
+      ctx.revert()
+      audioRef.current.pause()
+    }
+  }, [hasStarted])
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-void-navy overflow-hidden flex flex-col">
+    <div ref={containerRef} className="relative min-h-screen bg-void-navy overflow-hidden flex flex-col font-sans">
+      {/* Welcome Cinematic Overlay */}
+      <div className="welcome-screen fixed inset-0 z-[100] bg-void-navy flex flex-col items-center justify-center">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-highlight-blue/10 via-transparent to-transparent opacity-50" />
+        
+        {!hasStarted ? (
+          <button 
+            onClick={startExperience}
+            className="group relative flex flex-col items-center gap-6"
+          >
+            <div className="w-24 h-24 rounded-full border border-highlight-blue/30 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:border-highlight-blue group-hover:bg-highlight-blue/5 shadow-[0_0_50px_rgba(91,138,245,0.1)]">
+                <Sparkles className="w-8 h-8 text-highlight-blue animate-pulse" />
+            </div>
+            <span className="text-white/60 uppercase tracking-[0.4em] text-xs font-bold group-hover:text-white transition-colors">
+                Onboarding starten
+            </span>
+            <div className="absolute -inset-20 bg-highlight-blue/10 blur-[120px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          </button>
+        ) : (
+          <>
+            {/* Audio Toggle */}
+            <button 
+              onClick={() => setIsMuted(!isMuted)}
+              className="absolute top-8 right-8 z-[110] p-3 rounded-full bg-white/5 border border-white/10 text-white/40 hover:text-white transition-colors"
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+
+            <div className="relative flex flex-col items-center text-center">
+              <h2 className="welcome-title opacity-0 translate-y-4 text-body-text uppercase tracking-[0.3em] font-medium text-xs md:text-sm mb-12">
+                Wilkommen bei
+              </h2>
+              
+              <div className="flex items-center gap-6 md:gap-8 h-12 md:h-24 px-12">
+                <img 
+                  src={logoHead} 
+                  alt="" 
+                  className="logo-part-head h-full w-auto object-contain drop-shadow-[0_0_30px_rgba(91,138,245,0.5)]" 
+                />
+                <img 
+                  src={logoText} 
+                  alt="Terminify" 
+                  className="logo-part-text h-[70%] md:h-[85%] w-auto object-contain" 
+                />
+              </div>
+
+              <div className="mt-16 flex gap-4">
+                {[...Array(5)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="loading-dot w-1.5 h-1.5 rounded-full bg-highlight-blue shadow-[0_0_10px_rgba(91,138,245,0.8)]" 
+                  />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
       {/* Radial Glows */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         <div className="absolute top-[10%] left-[-10%] w-[40%] h-[40%] bg-highlight-blue/5 blur-[120px] rounded-full" />
@@ -56,7 +200,7 @@ const LandingPage = () => {
               <div className="w-3 h-3 rounded-full bg-[#28C840]" />
             </div>
             <div className="flex-1 bg-void-navy/50 rounded-xs h-6 flex items-center px-3 border border-white/5">
-              <span className="text-[10px] text-muted-text font-mono truncate">terminify.io/onboarding-strategy-video</span>
+              <span className="text-[10px] text-muted-text font-mono truncate">terminify.ai/onboarding-video</span>
             </div>
           </div>
 
@@ -95,9 +239,9 @@ const LandingPage = () => {
             <span className="text-xs text-muted-text">© 2026 Alle Rechte vorbehalten.</span>
           </div>
           <div className="flex gap-8 text-[10px] uppercase tracking-[0.15em] font-mono text-muted-text">
-            <a href="#" className="hover:text-highlight-blue transition-colors">Impressum</a>
-            <a href="#" className="hover:text-highlight-blue transition-colors">Datenschutz</a>
-            <a href="#" className="hover:text-highlight-blue transition-colors">AGB</a>
+            <a href="https://vsl.terminify.ai/impressum/" className="hover:text-highlight-blue transition-colors">Impressum</a>
+            <a href="https://vsl.terminify.ai/datenschutz/" className="hover:text-highlight-blue transition-colors">Datenschutz</a>
+            <a href="https://vsl.terminify.ai/agb/" className="hover:text-highlight-blue transition-colors">AGB</a>
           </div>
         </div>
       </footer>

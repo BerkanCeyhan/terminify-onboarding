@@ -21,7 +21,7 @@ const useLocalStorage = (key, initialValue) => {
 const Input = ({ label, placeholder, name, value, onChange, type = "text", error }) => (
   <div className="flex flex-col gap-2.5 w-full">
     <label className="text-xs uppercase tracking-[0.1em] text-body-text font-bold flex justify-between">
-      {label}
+      <span>{label} <span className="text-reject-red">*</span></span>
       {error && <span className="text-reject-red text-[10px] normal-case font-medium">{error}</span>}
     </label>
     <input 
@@ -38,7 +38,7 @@ const Input = ({ label, placeholder, name, value, onChange, type = "text", error
 const Textarea = ({ label, placeholder, name, value, onChange, error }) => (
   <div className="flex flex-col gap-2.5 w-full">
     <label className="text-xs uppercase tracking-[0.1em] text-body-text font-bold flex justify-between">
-      {label}
+      <span>{label} <span className="text-reject-red">*</span></span>
       {error && <span className="text-reject-red text-[10px] normal-case font-medium">{error}</span>}
     </label>
     <textarea 
@@ -131,13 +131,19 @@ const QuestionnairePage = () => {
 
   const validate = () => {
     const newErrors = {}
-    if (!formData.fullName.trim()) newErrors.fullName = "Pflichtfeld"
-    if (!formData.email.trim()) {
-      newErrors.email = "Pflichtfeld"
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    
+    // Check all fields in formData
+    Object.keys(formData).forEach(key => {
+      const value = formData[key]
+      if (typeof value === 'string' && !value.trim()) {
+        newErrors[key] = "Pflichtfeld"
+      }
+    })
+
+    // Special check for email format
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "Ungültiges Format"
     }
-    if (!formData.angebotWas.trim()) newErrors.angebotWas = "Pflichtfeld"
     
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
