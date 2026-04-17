@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { gsap } from 'gsap'
 import confetti from 'canvas-confetti'
-import { ExternalLink, Play, Volume2, VolumeX, Sparkles } from 'lucide-react'
+import { ExternalLink, Play, Volume2, VolumeX, MousePointerClick } from 'lucide-react'
+import Orb from './Orb'
+import SoftAurora from './SoftAurora'
 import logo from '../../infos/logo.png'
 import logoHead from '../../infos/logo-robot-head-part.png'
 import logoText from '../../infos/logo-text-part-terminify.png'
@@ -110,20 +112,55 @@ const LandingPage = () => {
     <div ref={containerRef} className="relative min-h-screen bg-void-navy overflow-hidden flex flex-col font-sans">
       {/* Welcome Cinematic Overlay */}
       <div className="welcome-screen fixed inset-0 z-[100] bg-void-navy flex flex-col items-center justify-center">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-highlight-blue/10 via-transparent to-transparent opacity-50" />
+        {/* Aurora background */}
+        <div
+          className="absolute inset-0"
+          style={{
+            pointerEvents: 'none',
+            opacity: hasStarted ? 1 : 0.2,
+            transition: 'opacity 2s ease 0.3s',
+          }}
+        >
+          <SoftAurora
+            speed={0.1}
+            scale={1.2}
+            brightness={0.8}
+            color1="#4A6CF7"
+            color2="#9F43FE"
+            noiseFrequency={2.0}
+            noiseAmplitude={0.9}
+            bandHeight={0.5}
+            bandSpread={1.2}
+            octaveDecay={0.5}
+            layerOffset={1.5}
+            colorSpeed={0.6}
+            enableMouseInteraction={false}
+          />
+        </div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-highlight-blue/10 via-transparent to-transparent opacity-50" style={{ pointerEvents: 'none' }} />
         
         {!hasStarted ? (
-          <button 
+          <button
             onClick={startExperience}
-            className="group relative flex flex-col items-center gap-6"
+            className="group relative flex flex-col items-center gap-4"
           >
-            <div className="w-24 h-24 rounded-full border border-highlight-blue/30 flex items-center justify-center transition-all duration-500 group-hover:scale-110 group-hover:border-highlight-blue group-hover:bg-highlight-blue/5 shadow-[0_0_50px_rgba(91,138,245,0.1)]">
-                <Sparkles className="w-8 h-8 text-highlight-blue animate-pulse" />
+            <div style={{ width: '280px', height: '280px', position: 'relative' }}>
+              <Orb
+                hue={220}
+                hoverIntensity={0.5}
+                rotateOnHover={true}
+                forceHoverState={false}
+                backgroundColor="#0A0C12"
+              />
+            </div>
+            <div className="animate-bounce text-highlight-blue/50 group-hover:text-highlight-blue transition-colors">
+              <svg width="16" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 20 L8 6 M3 11 L8 5 L13 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
             <span className="text-white/60 uppercase tracking-[0.4em] text-xs font-bold group-hover:text-white transition-colors">
-                Onboarding starten
+              Onboarding starten
             </span>
-            <div className="absolute -inset-20 bg-highlight-blue/10 blur-[120px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
           </button>
         ) : (
           <>
